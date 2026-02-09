@@ -31,3 +31,89 @@ This project follows industry best practices for backend API design, frontend UI
 - Git & GitHub
 - dotenv for environment variables
 
+# Project Structure
+
+```
+Market-Direct/
+├── client/                 # React frontend
+├── server/                 # Node.js + Express backend
+├── .gitignore              # Ignored files
+├── run.bat                 # Windows startup script
+└── README.md               # Project documentation
+```
+
+# Installation & Setup
+🔹 **Prerequisites**\
+  Make sure you have installed:
+- Node.js (v14+)
+- npm
+- PostgreSQL
+
+🔹 **Clone the repository**
+   ```bash
+   git clone https://github.com/ROOKIEEE12/Market-Direct.git
+```
+🔹 **Backend Setup**
+ ```bash
+cd server
+npm install
+```
+ **Create a .env file inside server/:**
+ ```env
+PORT=5000
+DATABASE_URL=your_postgresql_connection_string
+JWT_SECRET=your_secret_key
+```
+
+**Start backend server:**
+```bash
+npm start
+```
+
+🔹 **Frontend Setup**
+```bash
+cd ../client
+npm install
+npm start
+```
+
+**Frontend will run at:**
+```bash
+http://localhost:3000
+```
+
+**Backend API will run at:**
+```bash
+http://localhost:5000
+```
+
+# How it works
+
+1. User registers or logs in
+2. Frontend sends API requests to Express backend
+3. Backend processes requests and interacts with PostgreSQL
+4. Data is securely returned to frontend
+5. UI updates dynamically
+
+# Contributing
+
+Contributions are welcome 🚀
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to your branch
+5. Open a Pull Request
+
+# License
+
+This project is licensed under the MIT License.
+
+# Author
+
+Amit Mishra\
+GitHub: https://github.com/ROOKIEEE12
+
+# Support
+
+If you like this project, please give it a ⭐ on GitHub — it motivates future development!
