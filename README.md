@@ -87,13 +87,6 @@ http://localhost:3000
 http://localhost:5000
 ```
 
-# How it works
-
-1. User registers or logs in
-2. Frontend sends API requests to Express backend
-3. Backend processes requests and interacts with PostgreSQL
-4. Data is securely returned to frontend
-5. UI updates dynamically
 
 # Contributing
 
