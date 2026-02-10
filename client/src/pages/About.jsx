@@ -48,30 +48,42 @@ const About = () => {
             ease: "power4.out"
         });
 
-        // Timeline Animation
-        gsap.utils.toArray('.timeline-item').forEach((item, i) => {
+        // Timeline Animation - Optimized
+        gsap.utils.toArray('.timeline-item-content').forEach((item, i) => {
             gsap.from(item, {
                 scrollTrigger: {
                     trigger: item,
-                    start: "top 80%",
+                    start: "top 85%",
+                    toggleActions: "play none none reverse"
                 },
-                x: i % 2 === 0 ? -50 : 50,
+                y: 30,
                 opacity: 0,
-                duration: 1,
-                ease: "power3.out"
+                duration: 1.2,
+                ease: "power4.out"
             });
         });
 
-        // Progress Line
-        gsap.from(".timeline-line", {
+        // Floating decorative icons
+        gsap.to(".floating-icon", {
+            y: "random(-20, 20)",
+            x: "random(-20, 20)",
+            rotation: "random(-15, 15)",
+            duration: "random(2, 4)",
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
+        });
+
+        // Progress Line - Smoother trace
+        gsap.from(".timeline-progress-fill", {
             scaleY: 0,
             transformOrigin: "top center",
             ease: "none",
             scrollTrigger: {
                 trigger: ".timeline-section",
-                start: "top 70%",
+                start: "top 60%",
                 end: "bottom 80%",
-                scrub: 1
+                scrub: 0.5
             }
         });
 
@@ -115,39 +127,57 @@ const About = () => {
 
             {/* Timeline Section */}
             <div className="timeline-section py-32 bg-rich-soil-900 text-white relative overflow-hidden">
+                {/* Decorative Background Elements */}
                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
+                <div className="absolute top-20 left-10 opacity-20 floating-icon hidden lg:block">
+                    <Sprout size={120} className="text-farm-green-500" />
+                </div>
+                <div className="absolute bottom-20 right-10 opacity-20 floating-icon hidden lg:block">
+                    <Sun size={100} className="text-farm-green-400" />
+                </div>
+                <div className="absolute top-1/2 left-20 opacity-10 floating-icon hidden lg:block">
+                    <Droplets size={80} className="text-farm-green-300" />
+                </div>
+
                 <div className="max-w-5xl mx-auto px-4 relative z-10">
-                    <h2 className="text-4xl font-serif font-bold text-center mb-24 text-farm-green-400">Our Journey</h2>
+                    <div className="text-center mb-24">
+                        <h2 className="text-sm font-bold tracking-[0.3em] text-farm-green-500 uppercase mb-4">Our History</h2>
+                        <h3 className="text-5xl md:text-6xl font-serif font-bold text-white">Our Journey</h3>
+                    </div>
 
                     <div className="relative">
-                        {/* Center Line */}
-                        <div className="timeline-line absolute left-0 md:left-1/2 top-0 bottom-0 w-1 bg-farm-green-500/30 md:-translate-x-1/2 rounded-full h-full">
-                            <div className="absolute top-0 left-0 w-full h-full bg-farm-green-500 origin-top scale-y-100"></div>
+                        {/* Center Line System */}
+                        <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-[2px] bg-white/10 md:-translate-x-1/2 rounded-full overflow-hidden">
+                            <div className="timeline-progress-fill absolute top-0 left-0 w-full h-full bg-gradient-to-b from-farm-green-400 to-farm-green-600 origin-top"></div>
                         </div>
 
-                        <div className="space-y-24">
+                        <div className="space-y-32">
                             <TimelineItem
                                 year="2021"
+                                icon={<Sprout className="text-farm-green-400" />}
                                 title="The Seed is Planted"
-                                content="During the lockdown, we witnessed farmers dumping produce while cities faced shortages. A small WhatsApp group was formed to connect them."
+                                content="During the lockdown, we witnessed farmers dumping produce while cities faced shortages. A small WhatsApp group was formed to connect them directly with citizens."
                                 align="left"
                             />
                             <TimelineItem
                                 year="2022"
+                                icon={<Target className="text-farm-green-400" />}
                                 title="First Harvest"
-                                content="We launched with just 5 farmers and 50 families in Nashik. Every delivery was made personally by our founders."
+                                content="We launched with just 5 farmers and 50 families in Nashik. Every delivery was made personally by our founders to ensure quality and trust."
                                 align="right"
                             />
                             <TimelineItem
                                 year="2023"
+                                icon={<Users className="text-farm-green-400" />}
                                 title="Growing Roots"
-                                content="Expanded to Pune and Mumbai. Built our first tech platform to handle logistics and payments seamlessly."
+                                content="Expanded to Pune and Mumbai. Built our first tech platform to handle logistics and payments seamlessly, empowering more rural communities."
                                 align="left"
                             />
                             <TimelineItem
                                 year="2024"
+                                icon={<Leaf className="text-farm-green-400" />}
                                 title="Full Bloom"
-                                content="Now a community of 500+ farmers. We introduced 'Trace Your Food', setting a new standard for transparency in India."
+                                content="Now a community of 500+ farmers. We introduced 'Trace Your Food', setting a new national standard for transparency and food safety."
                                 align="right"
                             />
                         </div>
@@ -208,7 +238,7 @@ const About = () => {
                         ) : farmers.length > 0 ? (
                             farmers.map((farmer) => (
                                 <TeamCard
-                                    key={farmer._id}
+                                    key={farmer.id}
                                     image={farmer.image}
                                     name={farmer.user.name}
                                     role={farmer.specialty}
@@ -236,37 +266,35 @@ const StatItem = ({ number, label }) => (
     </div>
 );
 
-const TimelineItem = ({ year, title, content, align }) => (
-    <div className={`timeline-item flex flex-col md:flex-row gap-8 items-center ${align === 'right' ? 'md:flex-row-reverse' : ''}`}>
-        <div className="w-full md:w-1/2 text-center md:text-right p-4">
-            {align === 'left' ? (
-                <>
-                    <div className="text-6xl font-bold text-farm-green-400/40 mb-2">{year}</div>
-                    <h3 className="text-2xl font-bold text-farm-green-400 mb-4">{title}</h3>
-                    <p className="text-gray-400 leading-relaxed text-lg">{content}</p>
-                </>
-            ) : (
-                <div className="hidden md:block"></div> /* Spacer for desktop */
-            )}
-            {/* Mobile Only Content for Right Align when collapsed */}
-            <div className="md:hidden">
-                <div className="text-6xl font-bold text-farm-green-400/40 mb-2">{year}</div>
-                <h3 className="text-2xl font-bold text-farm-green-400 mb-4">{title}</h3>
-                <p className="text-gray-400 leading-relaxed text-lg">{content}</p>
+const TimelineItem = ({ year, title, content, align, icon }) => (
+    <div className={`timeline-item relative flex flex-col md:flex-row gap-8 items-center ${align === 'right' ? 'md:flex-row-reverse' : ''}`}>
+        {/* Content Side */}
+        <div className={`w-full md:w-1/2 timeline-item-content group px-12 ${align === 'left' ? 'md:text-right' : 'md:text-left'}`}>
+            <div className={`inline-flex items-center justify-center p-3 rounded-2xl bg-white/5 border border-white/10 mb-6 group-hover:bg-farm-green-500/20 transition-colors duration-500`}>
+                {React.cloneElement(icon, { size: 28 })}
+            </div>
+            <div className="text-8xl font-black text-white/[0.7] mb-2 leading-none tracking-tighter select-none">
+                {year}
+            </div>
+            <h3 className="text-3xl font-bold text-farm-green-400 mb-4 group-hover:translate-x-2 md:group-hover:-translate-x-2 transition-transform duration-500 h-8 flex items-center gap-4">
+                {align === 'right' ? <span className="hidden md:block w-8 h-[2px] bg-farm-green-500/50"></span> : null}
+                {title}
+                {align === 'left' ? <span className="hidden md:block w-8 h-[2px] bg-farm-green-500/50"></span> : null}
+            </h3>
+            <p className="text-gray-300 leading-relaxed text-lg max-w-md ml-auto mr-auto md:ml-0 md:mr-0">
+                {content}
+            </p>
+        </div>
+
+        {/* Center Indicator */}
+        <div className="relative z-10 flex-shrink-0 group">
+            <div className="w-16 h-16 rounded-full bg-rich-soil-900 border-2 border-farm-green-500/30 flex items-center justify-center relative overflow-hidden transition-all duration-500 group-hover:border-farm-green-400 group-hover:shadow-[0_0_25px_rgba(74,222,128,0.2)]">
+                <div className="w-3 h-3 rounded-full bg-farm-green-500 group-hover:scale-150 transition-transform duration-500"></div>
             </div>
         </div>
 
-        <div className="relative z-10 flex-shrink-0 w-12 h-12 rounded-full bg-farm-green-500 border-4 border-rich-soil-900 shadow-[0_0_0_8px_rgba(34,197,94,0.2)]"></div>
-
-        <div className="w-full md:w-1/2 p-4 text-center md:text-left hidden md:block">
-            {align === 'right' && (
-                <>
-                    <div className="text-6xl font-bold text-farm-green-400/40 mb-2">{year}</div>
-                    <h3 className="text-2xl font-bold text-farm-green-400 mb-4">{title}</h3>
-                    <p className="text-gray-400 leading-relaxed text-lg">{content}</p>
-                </>
-            )}
-        </div>
+        {/* Spacer for desktop */}
+        <div className="hidden md:block md:w-1/2"></div>
     </div>
 );
 

@@ -1,162 +1,115 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Menu, Search, Heart, Sprout, X, ChevronDown, LogOut, LayoutDashboard } from 'lucide-react';
+import { ShoppingBag, User, Menu, X, LogOut, Search, Sprout } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Navbar = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [bagAnimate, setBagAnimate] = useState(false);
     const { cartCount } = useCart();
-    const { user, logout } = useAuth();
+    const { user, logout, isAuthenticated } = useAuth();
+    const { addToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Handle scroll effect
+    useEffect(() => {
+        if (cartCount === 0) return;
+        setBagAnimate(true);
+        const timer = setTimeout(() => setBagAnimate(false), 400);
+        return () => clearTimeout(timer);
+    }, [cartCount]);
+
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 20) {
-                setScrolled(true);
-            } else {
-                setScrolled(false);
-            }
+            setIsScrolled(window.scrollY > 20);
         };
-
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        addToast('Logged out successfully', 'success');
+        navigate('/');
     };
 
-    const dashboardPath = user?.role === 'farmer' ? '/farmer-dashboard' : '/consumer-dashboard';
-
-    // Check if we are on the home page
-    const isHome = location.pathname === '/';
+    const isHomePage = location.pathname === '/';
+    const navStyle = (isScrolled || !isHomePage)
+        ? 'py-4 bg-white/80 backdrop-blur-xl shadow-lg'
+        : 'py-6 bg-transparent';
+    const textColor = (isScrolled || !isHomePage) ? 'text-rich-soil-900' : 'text-white';
 
     return (
-        <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled || !isHome
-                    ? 'bg-white/90 backdrop-blur-md shadow-lg py-2'
-                    : 'bg-transparent py-4'
-                }`}
-        >
-            <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500`}>
-                <div className="flex justify-between items-center h-16">
-
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${navStyle}`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between">
                     {/* Logo */}
-                    <div className="flex-shrink-0 flex items-center">
-                        <Link to="/" className="flex items-center gap-2 group">
-                            <div className={`p-2 rounded-full transition-colors ${scrolled || !isHome ? 'bg-farm-green-100' : 'bg-white/20 backdrop-blur-sm'}`}>
-                                <Sprout className={`h-6 w-6 ${scrolled || !isHome ? 'text-farm-green-600' : 'text-white'}`} />
-                            </div>
-                            <span className={`text-2xl font-serif font-bold tracking-tight ${scrolled || !isHome ? 'text-farm-green-900' : 'text-white'}`}>
-                                MarketDirect
-                            </span>
-                        </Link>
+                    <Link to="/" className="flex items-center gap-2 group">
+                        <div className="w-10 h-10 bg-farm-green-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-farm-green-200 group-hover:rotate-12 transition-transform">
+                            <Sprout size={24} />
+                        </div>
+                        <span className={`text-2xl font-serif font-bold tracking-tight ${textColor}`}>
+                            Market<span className="text-farm-green-600">Direct</span>
+                        </span>
+                    </Link>
+
+                    {/* Desktop Menu */}
+                    <div className={`hidden md:flex items-center rounded-full px-2 py-1 border ${isHomePage && !isScrolled ? 'bg-white/10 backdrop-blur-md border-white/20' : 'bg-sand-100/50 border-sand-200'}`}>
+                        <Link to="/" className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${location.pathname === '/' ? 'bg-farm-green-600 text-white' : (isScrolled || !isHomePage ? 'text-rich-soil-600 hover:text-farm-green-600' : 'text-white/80 hover:text-white')}`}>Home</Link>
+                        <Link to="/marketplace" className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${location.pathname === '/marketplace' ? 'bg-farm-green-600 text-white' : (isScrolled || !isHomePage ? 'text-rich-soil-600 hover:text-farm-green-600' : 'text-white/80 hover:text-white')}`}>Marketplace</Link>
+                        <Link to="/about" className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${location.pathname === '/about' ? 'bg-farm-green-600 text-white' : (isScrolled || !isHomePage ? 'text-rich-soil-600 hover:text-farm-green-600' : 'text-white/80 hover:text-white')}`}>Our Story</Link>
                     </div>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex space-x-8 items-center">
-                        {['Home', 'Marketplace', 'About', 'Farmers'].map((item) => (
-                            <Link
-                                key={item}
-                                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                className={`font-medium transition-colors hover:text-farm-green-400 ${scrolled || !isHome ? 'text-rich-soil-700' : 'text-white/90'
-                                    }`}
-                            >
-                                {item}
-                            </Link>
-                        ))}
-                    </div>
-
-                    {/* Search Bar - Desktop */}
-                    <div className={`hidden lg:flex flex-1 max-w-xs mx-8 relative transition-all duration-500 ${scrolled ? 'opacity-100' : isHome ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                        <input
-                            type="text"
-                            placeholder="Search fresh products..."
-                            className="w-full bg-sand-100 border-none rounded-full py-2 pl-4 pr-10 focus:ring-2 focus:ring-farm-green-500 focus:bg-white transition-all shadow-inner"
-                        />
-                        <button className="absolute right-3 top-2.5 text-rich-soil-400 hover:text-farm-green-600">
-                            <Search size={18} />
-                        </button>
-                    </div>
-
-                    {/* Icons */}
-                    <div className="flex items-center space-x-6">
-                        <button className={`lg:hidden hover:text-farm-green-400 ${scrolled || !isHome ? 'text-rich-soil-700' : 'text-white'}`} onClick={() => setIsSearchOpen(!isSearchOpen)}>
-                            <Search size={24} />
-                        </button>
-
-                        <Link to="/cart" className={`relative hover:text-farm-green-400 transition-colors ${scrolled || !isHome ? 'text-rich-soil-700' : 'text-white'}`}>
-                            <ShoppingCart size={24} />
+                    {/* Actions */}
+                    <div className="flex items-center gap-4">
+                        <Link to="/cart" className={`relative p-2 rounded-full hover:bg-black/5 transition-all duration-300 group ${bagAnimate ? 'animate-cart-pop' : ''}`}>
+                            <ShoppingBag className={textColor} size={24} />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center border-2 border-white animate-bounce-subtle">
+                                <span className={`absolute -top-1 -right-1 bg-farm-green-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white ${bagAnimate ? 'scale-125' : 'scale-100'} transition-transform duration-300`}>
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
 
-                        {user ? (
-                            <div className="hidden md:flex items-center gap-4">
-                                <Link to={dashboardPath} className={`flex items-center gap-2 font-bold transition-all ${scrolled || !isHome ? 'text-farm-green-700 hover:text-farm-green-800' : 'text-white hover:text-farm-green-200'}`}>
-                                    <LayoutDashboard size={20} />
-                                    <span>Dashboard</span>
+                        {isAuthenticated ? (
+                            <div className="flex items-center gap-2">
+                                <Link to={user.role === 'farmer' ? '/farmer-dashboard' : '/consumer-dashboard'} className="flex items-center gap-2 pl-2 pr-4 py-2 bg-white rounded-full border border-sand-200 hover:shadow-md transition-all">
+                                    <div className="w-8 h-8 rounded-full bg-sand-100 flex items-center justify-center">
+                                        <User size={18} className="text-farm-green-600" />
+                                    </div>
+                                    <span className="text-sm font-bold text-rich-soil-900 hidden lg:block">{user.name.split(' ')[0]}</span>
                                 </Link>
-                                <button onClick={handleLogout} className={`transition-all ${scrolled || !isHome ? 'text-rich-soil-600 hover:text-red-600' : 'text-white/80 hover:text-red-300'}`}>
+                                <button onClick={handleLogout} className="p-2 text-rich-soil-400 hover:text-red-500 transition-colors">
                                     <LogOut size={20} />
                                 </button>
                             </div>
                         ) : (
-                            <Link to="/login" className={`hidden md:flex items-center gap-2 px-5 py-2 rounded-full transition-all shadow-md hover:shadow-lg ${scrolled || !isHome
-                                    ? 'bg-farm-green-600 text-white hover:bg-farm-green-700'
-                                    : 'bg-white text-farm-green-800 hover:bg-farm-green-50'
-                                }`}>
-                                <User size={18} />
-                                <span className="font-medium">Login</span>
+                            <Link to="/login" className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${isScrolled ? 'bg-farm-green-600 text-white hover:bg-farm-green-700 shadow-lg shadow-farm-green-100' : 'bg-white text-farm-green-900 hover:bg-farm-green-50'}`}>
+                                Sign In
                             </Link>
                         )}
 
-                        <button className={`md:hidden ${scrolled || !isHome ? 'text-rich-soil-700' : 'text-white'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                        {/* Mobile Toggle */}
+                        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-2">
+                            {isMobileMenuOpen ? <X className={textColor} /> : <Menu className={textColor} />}
                         </button>
                     </div>
                 </div>
             </div>
 
             {/* Mobile Menu */}
-            {isMenuOpen && (
-                <div className="md:hidden bg-white border-t border-sand-200 absolute w-full shadow-lg animate-slide-in">
-                    <div className="px-4 py-6 space-y-4">
-                        {['Home', 'Marketplace', 'About', 'Farmers'].map((item) => (
-                            <Link
-                                key={item}
-                                to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                className="block text-lg font-medium text-rich-soil-800"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                {item}
-                            </Link>
-                        ))}
-                        <div className="pt-4 border-t border-sand-200 flex flex-col gap-4">
-                            {user ? (
-                                <>
-                                    <Link to={dashboardPath} className="flex items-center gap-3 text-farm-green-700 font-bold" onClick={() => setIsMenuOpen(false)}>
-                                        <LayoutDashboard size={20} /> Dashboard
-                                    </Link>
-                                    <button onClick={handleLogout} className="flex items-center gap-3 text-red-600 font-bold">
-                                        <LogOut size={20} /> Logout
-                                    </button>
-                                </>
-                            ) : (
-                                <Link to="/login" className="flex items-center gap-3 text-rich-soil-700 w-full justify-center bg-farm-green-100 py-3 rounded-xl font-bold" onClick={() => setIsMenuOpen(false)}>
-                                    <User size={20} /> Login / Register
-                                </Link>
-                            )}
-                        </div>
+            {isMobileMenuOpen && (
+                <div className="md:hidden fixed inset-0 z-40 bg-white pt-24 px-4 slide-in-bottom">
+                    <div className="space-y-4">
+                        <Link onClick={() => setIsMobileMenuOpen(false)} to="/" className="block text-2xl font-serif font-bold text-rich-soil-900 border-b border-sand-100 pb-4">Home</Link>
+                        <Link onClick={() => setIsMobileMenuOpen(false)} to="/marketplace" className="block text-2xl font-serif font-bold text-rich-soil-900 border-b border-sand-100 pb-4">Marketplace</Link>
+                        <Link onClick={() => setIsMobileMenuOpen(false)} to="/about" className="block text-2xl font-serif font-bold text-rich-soil-900 border-b border-sand-100 pb-4">Our Story</Link>
+                        {!isAuthenticated && (
+                            <Link onClick={() => setIsMobileMenuOpen(false)} to="/login" className="block w-full text-center bg-farm-green-600 text-white py-4 rounded-2xl font-bold text-xl">Sign In</Link>
+                        )}
                     </div>
                 </div>
             )}

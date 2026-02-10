@@ -8,11 +8,14 @@ import About from './pages/About';
 import Marketplace from './pages/Marketplace';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import FarmerDashboard from './pages/dashboard/FarmerDashboard';
 import ConsumerDashboard from './pages/dashboard/ConsumerDashboard';
 import FarmerOnboarding from './pages/dashboard/FarmerOnboarding';
+import Success from './pages/Success';
+import TrackOrder from './pages/TrackOrder';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -30,6 +33,7 @@ function App() {
                         <Route path="/marketplace" element={<Marketplace />} />
                         <Route path="/product/:id" element={<ProductDetails />} />
                         <Route path="/cart" element={<Cart />} />
+                        <Route path="/checkout" element={<Checkout />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
 
@@ -58,6 +62,8 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route path="/success" element={<Success />} />
+                        <Route path="/track-order/:id" element={<TrackOrder />} />
                     </Routes>
                 </main>
                 <Footer />

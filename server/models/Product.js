@@ -24,6 +24,11 @@ const Product = sequelize.define('Product', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    unit: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'kg'
+    },
     image: {
         type: DataTypes.TEXT,
         allowNull: false
